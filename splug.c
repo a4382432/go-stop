@@ -46,7 +46,7 @@ int main(int argc, const char * argv[])
 		11,"광",11,"피",11,"피",11,"쌍피",//똥
 		12,"광",12,"끗",12,"피",12,"쌍피"//비
 	};
-//////////////////////////////////initialize pointer information/////////////////////////////////
+	//////////////////////////////////initialize pointer information/////////////////////////////////
 	playerData blank;
 	blank.data.month=0;
 	strcpy(blank.data.type,"Player");
@@ -68,7 +68,7 @@ int main(int argc, const char * argv[])
 
 	playerData * dummyPtr=(playerData*)malloc(sizeof(playerData));
 	dummyPtr->next=NULL;
-/////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////////////
 
 	//Shuffle(deck);
 	Init(player,deck,playerPtr,floorPtr,dummyPtr);
@@ -101,20 +101,20 @@ void ShowCard(playerData * ptr[3])
 	}
 }
 //Player -> playerData -> card 순으로 내려감
-void Init(Player player[3],Card deck[48],playerData * ptr[3],playerData * floorPtr,playerData *dummyPtr)
+void Init(Player player[3],Card deck[48],playerData * playerPtr[3],playerData * floorPtr,playerData *dummyPtr)
 {
 	for(int i=0;i<24;i++){
 		if(i>=0 && i<8){
-			ptr[0]=&(player[0].hand);
-			GiveCardToPlayer(player[0],deck[i],ptr[0]);
+			playerPtr[0]=&(player[0].hand);
+			GiveCardToPlayer(player[0],deck[i],playerPtr[0]);
 		}
 		else if(i>=8 && i<16){
-			ptr[1]=&(player[1].hand);
-			GiveCardToPlayer(player[1],deck[i],ptr[1]);
+			playerPtr[1]=&(player[1].hand);
+			GiveCardToPlayer(player[1],deck[i],playerPtr[1]);
 		}
 		else if(i>=16 && i<24){
-			ptr[2]=&(player[2].hand);
-			GiveCardToPlayer(player[2],deck[i],ptr[2]);
+			playerPtr[2]=&(player[2].hand);
+			GiveCardToPlayer(player[2],deck[i],playerPtr[2]);
 		}
 	}
 	for(int i=24;i<30;i++)
@@ -122,14 +122,14 @@ void Init(Player player[3],Card deck[48],playerData * ptr[3],playerData * floorP
 	for(int i=30;i<48;i++)
 		GiveCardToDummy(dummyPtr,deck[i]);
 }
-void GiveCardToPlayer(Player player,Card deck,playerData * ptr)
+void GiveCardToPlayer(Player player,Card deck,playerData * handPtr)
 {
 	playerData * new=(playerData*)malloc(sizeof(playerData));
 	new->data=deck;
 	new->next=NULL;
-	while(ptr->next !=NULL)
-		ptr=ptr->next;
-	ptr->next=new;
+	while(handPtr->next !=NULL)
+		handPtr=handPtr->next;
+	handPtr->next=new;
 }
 void GiveCardToFloor(playerData * floorPtr,Card deck)
 {
