@@ -26,6 +26,7 @@ typedef struct player Player;
 void Shuffle(Card deck[]);
 void Init(Player player[3],Card deck[48],playerData * ptr[3]);
 void GiveCardToPlayer(Player,Card,playerData*);
+void ShowCard(playerData * ptr[3]);
 
 int main(int argc, const char * argv[])
 {
@@ -46,7 +47,7 @@ int main(int argc, const char * argv[])
 
 	playerData blank;
 	blank.data.month=0;
-	strcpy(blank.data.type,"blank");
+	strcpy(blank.data.type,"Player");
 	blank.next=NULL;
 
 	Player player[3];
@@ -55,24 +56,17 @@ int main(int argc, const char * argv[])
 		player[i].hand=blank;
 		player[i].get=blank;
 	}
-	playerData * ptr[3];
+	playerData * ptr[3];//these ptr are to point player's information only
 	for(int i=0;i<3;i++){
 		ptr[i]=(playerData*)malloc(sizeof(playerData));
 		ptr[i]->next=NULL;
-		ptr[i]=&(player[i].hand);
 	}
+
 
 
 	//Shuffle(deck);
 	Init(player,deck,ptr);
-	/*********************************************************/
-	for(int i=0;i<3;i++){
-		while(ptr[i]!=NULL){
-			printf("%d%s	",ptr[i]->data.month,ptr[i]->data.type);
-			ptr[i]=ptr[i]->next;
-		}
-	}
-	/*********************************************************/	//this is for test
+	ShowCard(ptr);
 	return 0;
 }
 void Shuffle(Card deck[48])
@@ -89,18 +83,31 @@ void Shuffle(Card deck[48])
 		deck[j]=tmp;
 	}
 }
+void ShowCard(playerData * ptr[3])
+{
 
+	for(int i=0;i<3;i++){
+		while(ptr[i]!=NULL){
+			printf("%d%s	",ptr[i]->data.month,ptr[i]->data.type);
+			ptr[i]=ptr[i]->next;
+		}
+		printf("\n");
+	}
+}
 //Player -> playerData -> card 순으로 내려감
 void Init(Player player[3],Card deck[48],playerData * ptr[3])
 {
 	for(int i=0;i<24;i++){
 		if(i>=0 && i<8){
+			ptr[0]=&(player[0].hand);
 			GiveCardToPlayer(player[0],deck[i],ptr[0]);
 		}
 		else if(i>=8 && i<16){
+			ptr[1]=&(player[1].hand);
 			GiveCardToPlayer(player[1],deck[i],ptr[1]);
 		}
 		else if(i>=16 && i<24){
+			ptr[2]=&(player[2].hand);
 			GiveCardToPlayer(player[2],deck[i],ptr[2]);
 		}
 	}
