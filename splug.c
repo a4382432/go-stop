@@ -56,17 +56,17 @@ int main(int argc, const char * argv[])
 		player[i].hand=blank;
 		player[i].get=blank;
 	}
-	playerData * ptr[3];//these ptr are to point player's information only
+	playerData * playerPtr[3];//these ptr are to point player's information only
 	for(int i=0;i<3;i++){
-		ptr[i]=(playerData*)malloc(sizeof(playerData));
-		ptr[i]->next=NULL;
+		playerPtr[i]=(playerData*)malloc(sizeof(playerData));
+		playerPtr[i]->next=NULL;
 	}
 
 
 
 	//Shuffle(deck);
-	Init(player,deck,ptr);
-	ShowCard(ptr);
+	Init(player,deck,playerPtr);
+	ShowCard(playerPtr);
 	return 0;
 }
 void Shuffle(Card deck[48])
@@ -121,3 +121,4 @@ void GiveCardToPlayer(Player player,Card deck,playerData * ptr)
 		ptr=ptr->next;
 	ptr->next=new;
 }
+
