@@ -24,8 +24,10 @@ typedef struct player Player;
 //Player -> playerData -> card 순으로 내려감
 
 void Shuffle(Card deck[]);
-void Init(Player player[3],Card deck[48],playerData * ptr[3]);
+void Init(Player player[3],Card deck[48],playerData * ptr[3],playerData *floorPtr,playerData * dummyPtr);
 void GiveCardToPlayer(Player,Card,playerData*);
+void GiveCardToDummy(playerData * dummyPtr,Card deck);
+void GiveCardToFloor(playerData * floorPtr,Card deck);
 void ShowCard(playerData * ptr[3]);
 
 int main(int argc, const char * argv[])
@@ -44,14 +46,13 @@ int main(int argc, const char * argv[])
 		11,"광",11,"피",11,"피",11,"쌍피",//똥
 		12,"광",12,"끗",12,"피",12,"쌍피"//비
 	};
-
+//////////////////////////////////initialize pointer information/////////////////////////////////
 	playerData blank;
 	blank.data.month=0;
 	strcpy(blank.data.type,"Player");
 	blank.next=NULL;
 
 	Player player[3];
-
 	for(int i=0;i<3;i++){
 		player[i].hand=blank;
 		player[i].get=blank;
@@ -62,10 +63,15 @@ int main(int argc, const char * argv[])
 		playerPtr[i]->next=NULL;
 	}
 
+	playerData * floorPtr=(playerData*)malloc(sizeof(playerData));
+	floorPtr->next=NULL;
 
+	playerData * dummyPtr=(playerData*)malloc(sizeof(playerData));
+	dummyPtr->next=NULL;
+/////////////////////////////////////////////////////////////////////////////////////////////
 
 	//Shuffle(deck);
-	Init(player,deck,playerPtr);
+	Init(player,deck,playerPtr,floorPtr,dummyPtr);
 	ShowCard(playerPtr);
 	return 0;
 }
@@ -95,7 +101,7 @@ void ShowCard(playerData * ptr[3])
 	}
 }
 //Player -> playerData -> card 순으로 내려감
-void Init(Player player[3],Card deck[48],playerData * ptr[3])
+void Init(Player player[3],Card deck[48],playerData * ptr[3],playerData * floorPtr,playerData *dummyPtr)
 {
 	for(int i=0;i<24;i++){
 		if(i>=0 && i<8){
@@ -111,6 +117,10 @@ void Init(Player player[3],Card deck[48],playerData * ptr[3])
 			GiveCardToPlayer(player[2],deck[i],ptr[2]);
 		}
 	}
+	for(int i=24;i<30;i++)
+		GiveCardToFloor(floorPtr,deck[i]);
+	for(int i=30;i<48;i++)
+		GiveCardToDummy(dummyPtr,deck[i]);
 }
 void GiveCardToPlayer(Player player,Card deck,playerData * ptr)
 {
@@ -121,4 +131,23 @@ void GiveCardToPlayer(Player player,Card deck,playerData * ptr)
 		ptr=ptr->next;
 	ptr->next=new;
 }
-
+void GiveCardToFloor(playerData * floorPtr,Card deck)
+{
+	playerData * tmp=floorPtr;
+	playerData * new=(playerData*)malloc(sizeof(playerData));
+	new->data=deck;
+	new->next=NULL;
+	while(tmp->next !=NULL)
+		tmp=tmp->next;
+	tmp->next=new;
+}
+void GiveCardToDummy(playerData * dummyPtr,Card deck)
+{
+	playerData * tmp=dummyPtr;
+	playerData * new=(playerData*)malloc(sizeof(playerData));
+	new->data=deck;
+	new->next=NULL;
+	while(tmp->next !=NULL)
+		tmp=tmp->next;
+	tmp->next=new;
+}
