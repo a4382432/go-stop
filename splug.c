@@ -3,151 +3,174 @@
 #include <string.h>
 #include <time.h>
 
-struct card{
+struct card {
 	int month;
 	char type[8];
 };
 typedef struct card Card;
 
-struct player_data{
+struct player_data {
 	Card data;
 	struct player_data *next;
 };
 typedef struct player_data playerData;
 
-struct player{
+struct player {
 	playerData hand;
 	playerData get;
 };
 typedef struct player Player;
 
-//Player -> playerData -> card ìˆœìœ¼ë¡œ ë‚´ë ¤ê°
+//Player -> playerData -> card ¼øÀ¸·Î ³»·Á°¨
 
 void Shuffle(Card deck[]);
-void Init(Player player[3],Card deck[48],playerData * ptr[3],playerData *floorPtr,playerData * dummyPtr);
-void GiveCardToPlayer(Player,Card,playerData*);
-void GiveCardToDummy(playerData * dummyPtr,Card deck);
-void GiveCardToFloor(playerData * floorPtr,Card deck);
+void Init(Player player[3], Card deck[48], playerData * ptr[3], playerData *floorPtr, playerData * dummyPtr);
+void GiveCardToPlayer(Player, Card, playerData*);
+void GiveCardToDummy(playerData * dummyPtr, Card deck);
+void GiveCardToFloor(playerData * floorPtr, Card deck);
 void ShowCard(playerData * ptr[3]);
+void FromHandToGet(Player player, int choice);
 
 int main(int argc, const char * argv[])
 {
-	Card deck[48]={
-		1,"ê´‘",1,"ë ",1,"í”¼",1,"í”¼",//ì‚°
-		2,"ë—",2,"ë ",2,"í”¼",2,"í”¼",//ë§¤ì¡°
-		3,"ê´‘",3,"ë ",3,"í”¼",3,"í”¼",//ì‚¬ì¿ ë¼
-		4,"ë—",4,"ë ",4,"í”¼",4,"í”¼",//í‘ì‹¸ë¦¬
-		5,"ë—",5,"ë ",5,"í”¼",5,"í”¼",//ë‚œ
-		6,"ë—",6,"ë ",6,"í”¼",6,"í”¼",//ëª¨ë€(ì¥ë¯¸)
-		7,"ë—",7,"ë ",7,"í”¼",7,"í”¼",//í™ì‹¸ë¦¬
-		8,"ê´‘",8,"ë—",8,"í”¼",8,"í”¼",//ì‚°
-		9,"ìŒí”¼",9,"ë ",9,"í”¼",9,"í”¼",//êµ­í™”(+êµ­ì§„)
-		10,"ë—",10,"ë ",10,"í”¼",10,"ìŒí”¼",//ë‹¨í’
-		11,"ê´‘",11,"í”¼",11,"í”¼",11,"ìŒí”¼",//ë˜¥
-		12,"ê´‘",12,"ë—",12,"í”¼",12,"ìŒí”¼"//ë¹„
+	Card deck[48] = {
+		1,"±¤",1,"¶ì",1,"ÇÇ",1,"ÇÇ",//»ê
+		2,"²ı",2,"¶ì",2,"ÇÇ",2,"ÇÇ",//¸ÅÁ¶
+		3,"±¤",3,"¶ì",3,"ÇÇ",3,"ÇÇ",//»çÄí¶ó
+		4,"²ı",4,"¶ì",4,"ÇÇ",4,"ÇÇ",//Èæ½Î¸®
+		5,"²ı",5,"¶ì",5,"ÇÇ",5,"ÇÇ",//³­
+		6,"²ı",6,"¶ì",6,"ÇÇ",6,"ÇÇ",//¸ğ¶õ(Àå¹Ì)
+		7,"²ı",7,"¶ì",7,"ÇÇ",7,"ÇÇ",//È«½Î¸®
+		8,"±¤",8,"²ı",8,"ÇÇ",8,"ÇÇ",//»ê
+		9,"½ÖÇÇ",9,"¶ì",9,"ÇÇ",9,"ÇÇ",//±¹È­(+±¹Áø)
+		10,"²ı",10,"¶ì",10,"ÇÇ",10,"½ÖÇÇ",//´ÜÇ³
+		11,"±¤",11,"ÇÇ",11,"ÇÇ",11,"½ÖÇÇ",//¶Ë
+		12,"±¤",12,"²ı",12,"ÇÇ",12,"½ÖÇÇ"//ºñ
 	};
 	//////////////////////////////////initialize pointer information/////////////////////////////////
 	playerData blank;
-	blank.data.month=0;
-	strcpy(blank.data.type,"Player");
-	blank.next=NULL;
+	blank.data.month = 0;
+	strcpy(blank.data.type, "Player");
+	blank.next = NULL;
 
 	Player player[3];
-	for(int i=0;i<3;i++){
-		player[i].hand=blank;
-		player[i].get=blank;
+	for (int i = 0; i<3; i++) {
+		player[i].hand = blank;
+		player[i].get = blank;
 	}
-	playerData * playerPtr[3];//these ptr are to point player's information only
-	for(int i=0;i<3;i++){
-		playerPtr[i]=(playerData*)malloc(sizeof(playerData));
-		playerPtr[i]->next=NULL;
+	playerData * initHandPtr[3];//these ptr are to point player's hand information only
+	for (int i = 0; i<3; i++) {
+		initHandPtr[i] = (playerData*)malloc(sizeof(playerData));
+		initHandPtr[i]->next = NULL;
 	}
+	playerData * initGetPtr[3];
+	for (int i = 0; i < 3; i++) {
+		initGetPtr[i] = (playerData*)malloc(sizeof(playerData));
+		initGetPtr[i]->next = NULL;
+	}
+	playerData * floorPtr = (playerData*)malloc(sizeof(playerData));
+	floorPtr->next = NULL;
 
-	playerData * floorPtr=(playerData*)malloc(sizeof(playerData));
-	floorPtr->next=NULL;
-
-	playerData * dummyPtr=(playerData*)malloc(sizeof(playerData));
-	dummyPtr->next=NULL;
+	playerData * dummyPtr = (playerData*)malloc(sizeof(playerData));
+	dummyPtr->next = NULL;
 	/////////////////////////////////////////////////////////////////////////////////////////////
 
 	//Shuffle(deck);
-	Init(player,deck,playerPtr,floorPtr,dummyPtr);
-	ShowCard(playerPtr);
+	Init(player, deck, initHandPtr, floorPtr, dummyPtr);
+	ShowCard(initHandPtr);
+	//printf("%d%s	",player[0].hand.next->next->data.month,player[0].hand.next->next->data.type);
+	FromHandToGet(player[0],initGetPtr[0], 3);
+
 	return 0;
 }
 void Shuffle(Card deck[48])
 {
 	Card tmp;
-	int j=0;
+	int j = 0;
 
 	srand(time(NULL));
-	for(int i=0;i<48;i++)
+	for (int i = 0; i<48; i++)
 	{
-		j=rand()%48;
-		tmp=deck[i];
-		deck[i]=deck[j];
-		deck[j]=tmp;
+		j = rand() % 48;
+		tmp = deck[i];
+		deck[i] = deck[j];
+		deck[j] = tmp;
 	}
 }
 void ShowCard(playerData * ptr[3])
 {
 
-	for(int i=0;i<3;i++){
-		while(ptr[i]!=NULL){
-			printf("%d%s	",ptr[i]->data.month,ptr[i]->data.type);
-			ptr[i]=ptr[i]->next;
+	for (int i = 0; i<3; i++) {
+		while (ptr[i] != NULL) {
+			printf("%d%s	", ptr[i]->data.month, ptr[i]->data.type);
+			ptr[i] = ptr[i]->next;
 		}
 		printf("\n");
 	}
 }
-//Player -> playerData -> card ìˆœìœ¼ë¡œ ë‚´ë ¤ê°
-void Init(Player player[3],Card deck[48],playerData * playerPtr[3],playerData * floorPtr,playerData *dummyPtr)
+//Player -> playerData -> card ¼øÀ¸·Î ³»·Á°¨
+void Init(Player player[3], Card deck[48], playerData * playerPtr[3], playerData * floorPtr, playerData *dummyPtr)
 {
-	for(int i=0;i<24;i++){
-		if(i>=0 && i<8){
-			playerPtr[0]=&(player[0].hand);
-			GiveCardToPlayer(player[0],deck[i],playerPtr[0]);
+	for (int i = 0; i<24; i++) {
+		if (i >= 0 && i<8) {
+			playerPtr[0] = &(player[0].hand);
+			GiveCardToPlayer(player[0], deck[i], playerPtr[0]);
 		}
-		else if(i>=8 && i<16){
-			playerPtr[1]=&(player[1].hand);
-			GiveCardToPlayer(player[1],deck[i],playerPtr[1]);
+		else if (i >= 8 && i<16) {
+			playerPtr[1] = &(player[1].hand);
+			GiveCardToPlayer(player[1], deck[i], playerPtr[1]);
 		}
-		else if(i>=16 && i<24){
-			playerPtr[2]=&(player[2].hand);
-			GiveCardToPlayer(player[2],deck[i],playerPtr[2]);
+		else if (i >= 16 && i<24) {
+			playerPtr[2] = &(player[2].hand);
+			GiveCardToPlayer(player[2], deck[i], playerPtr[2]);
 		}
 	}
-	for(int i=24;i<30;i++)
-		GiveCardToFloor(floorPtr,deck[i]);
-	for(int i=30;i<48;i++)
-		GiveCardToDummy(dummyPtr,deck[i]);
+	for (int i = 24; i<30; i++)
+		GiveCardToFloor(floorPtr, deck[i]);
+	for (int i = 30; i<48; i++)
+		GiveCardToDummy(dummyPtr, deck[i]);
 }
-void GiveCardToPlayer(Player player,Card deck,playerData * handPtr)
+void GiveCardToPlayer(Player player, Card deck, playerData * handPtr)
 {
-	playerData * new=(playerData*)malloc(sizeof(playerData));
-	new->data=deck;
-	new->next=NULL;
-	while(handPtr->next !=NULL)
-		handPtr=handPtr->next;
-	handPtr->next=new;
+	playerData * new = (playerData*)malloc(sizeof(playerData));
+	new->data = deck;
+	new->next = NULL;
+	while (handPtr->next != NULL)
+		handPtr = handPtr->next;
+	handPtr->next = new;
 }
-void GiveCardToFloor(playerData * floorPtr,Card deck)
+void GiveCardToFloor(playerData * floorPtr, Card deck)
 {
-	playerData * tmp=floorPtr;
-	playerData * new=(playerData*)malloc(sizeof(playerData));
-	new->data=deck;
-	new->next=NULL;
-	while(tmp->next !=NULL)
-		tmp=tmp->next;
-	tmp->next=new;
+	playerData * tmp = floorPtr;
+	playerData * new = (playerData*)malloc(sizeof(playerData));
+	new->data = deck;
+	new->next = NULL;
+	while (tmp->next != NULL)
+		tmp = tmp->next;
+	tmp->next = new;
 }
-void GiveCardToDummy(playerData * dummyPtr,Card deck)
+void GiveCardToDummy(playerData * dummyPtr, Card deck)
 {
-	playerData * tmp=dummyPtr;
-	playerData * new=(playerData*)malloc(sizeof(playerData));
-	new->data=deck;
-	new->next=NULL;
-	while(tmp->next !=NULL)
-		tmp=tmp->next;
-	tmp->next=new;
+	playerData * tmp = dummyPtr;
+	playerData * new = (playerData*)malloc(sizeof(playerData));
+	new->data = deck;
+	new->next = NULL;
+	while (tmp->next != NULL)
+		tmp = tmp->next;
+	tmp->next = new;
+}
+void FromHandToGet(Player player, playerData * initGetPtr, int choice)
+{
+	playerData * handPtr = &(player.hand);
+	playerData * handPrev = NULL;
+	initGetPtr = &(player.get);//getÀÇ ³ëµå¸¦ °¡¸®Å°±â À§ÇÑ ¿ëµµÀÌ°í, °ø°£ ÇÒ´çÀº main()¿¡¼­ ÇØ³õÀº »óÅÂÀÓ
+	for (int i = 0; i < choice + 1; i++) {
+		handPrev = handPtr;
+		handPtr = handPtr->next;
+	}
+	while (initGetPtr->next != NULL)
+		initGetPtr = initGetPtr->next;
+	handPrev->next = handPtr->next;
+	initGetPtr->next = handPtr;
+	handPtr = NULL;
 }
